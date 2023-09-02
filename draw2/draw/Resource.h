@@ -18,7 +18,34 @@
 #define IDC_STATIC				-1
 #endif
 // Values for other objects (eg. buttons)
-#define ID_BUTTON1				200
+#define ID5_BUTTON1				200
+#define ID5_BUTTON2				200
+#define ID5_BUTTON3				200
+#define ID5_BUTTON4				200
+
+#define ID4_BUTTON1			    200
+#define ID4_BUTTON2				200
+#define ID4_BUTTON3				200
+#define ID4_BUTTON4				200
+
+#define ID3_BUTTON1			    200
+#define ID3_BUTTON2				200
+#define ID3_BUTTON3				200
+#define ID3_BUTTON4				200
+
+
+#define ID2_BUTTON1			    200
+#define ID2_BUTTON2				200
+#define ID2_BUTTON3				200
+#define ID2_BUTTON4				200
+
+
+#define ID1_BUTTON1			    200
+#define ID1_BUTTON2				200
+#define ID1_BUTTON3				200
+#define ID1_BUTTON4				200
+
+
 #define ID_BUTTON2				201
 #define ID_RBUTTON1				210
 #define ID_RBUTTON2				211
