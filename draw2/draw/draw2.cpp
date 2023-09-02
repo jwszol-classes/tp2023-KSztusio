@@ -56,18 +56,12 @@ void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
 	EndPaint(hWnd, &ps);
 }
 
-void inputData()
-{
-	data.push_back(Point(0, 0));
-	for (int i = 1; i < 100; i++) {
-		data.push_back(Point(2 * i + 1, 200 * rand() / RAND_MAX));
-	}
-}
+
+
 
 
 int OnCreate(HWND window)
 {
-	inputData();
 	return 0;
 }
 
