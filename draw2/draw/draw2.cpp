@@ -59,6 +59,7 @@ void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
 void t() {
 	int a = 0;
 	a++;
+	a--;
 }
 
 
