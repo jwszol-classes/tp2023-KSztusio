@@ -22,7 +22,7 @@ HWND hwndButton;
 // sent data
 int col = 0;
 std::vector<Point> data;
-RECT drawArea1 = { 0, 0, 150, 200 };
+RECT drawArea1 = { 0, 0, 1280, 720 };
 RECT drawArea2 = { 50, 400, 650, 422};
 
 // Forward declarations of functions included in this code module:
