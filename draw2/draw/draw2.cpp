@@ -19,20 +19,26 @@ INT value;
 // buttons
 HWND hwndButton;
 struct kolejka {
-	kolejka(int x, int y);
-	int from = 0;
-	int to = 0;
+	kolejka(int x, int y, int z = 1);
+	void add();
+	int from = 1;
+	int to = 1;
+	int quantity = 0;
 };
-kolejka::kolejka(int x, int y) {
+kolejka::kolejka(int x, int y, int z) {
 	from = x;
 	to = y;
+	quantity = z;
+}
+void kolejka::add() {
+	quantity++;
 }
 std::queue <kolejka*> k;
 int levels[] = { 605, 455, 305, 155, 5 };
 int height = 5;
-int from = 5;
+int from = 1;
 int now = -5;
-int to = 5;
+int to = 1;
 int wait = -100;
 // sent data
 int col = 0;
@@ -52,7 +58,24 @@ INT_PTR CALLBACK	Buttons(HWND, UINT, WPARAM, LPARAM);
 
 
 RECT drawArea3 = { 0, 0, 2000, 2000 };
+void addQ(int x, int y) {
+	bool f = 1;
+	int t = k.size();
+	for (int i = 0; i < k.size(); i++) {
+		if (x == k.front()->from && y == k.front()->to) {
+			k.push(new kolejka(k.front()->from, k.front()->to, ++k.front()->quantity));
+			f = 0;
+		}
+		else {
+			k.push(new kolejka(k.front()->from, k.front()->to, k.front()->quantity));
+		}
+		k.pop();
 
+	}
+	if (f) {
+		k.push(new kolejka(x, y));
+	}
+}
 
 //rysowanie 
 void OnPaint(HDC hdc)
@@ -433,9 +456,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (height == levels[k.front()->to-1]) {
 				do_it = 0;
 				k.pop();
-				actualLevel = from;
+				actualLevel = to;
 				from = actualLevel;
-				to = actualLevel;
 				wait = value;
 			}
 			break;
@@ -444,10 +466,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		if (do_it != 0 && now < value - 1 && wait < value - 50) {
-			height += abs(from - to) / (from - to);
+			height += (abs(from - to) / (from - to)) * 5;
 			now = value;
 		}
 		
+	}
+	
+	else if (wait < value - 500 && actualLevel != 1) {
+		k.push(new kolejka(actualLevel, 1, 0));
 	}
 	switch (message)
 	{
@@ -481,64 +507,64 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			KillTimer(hWnd, TMR_1);
 			break;
 		case ID1_BUTTON1:
-			k.push(new kolejka(1, 2));
+			addQ(1, 2);
 			break;
 		case ID1_BUTTON2:
-			k.push(new kolejka(1, 3));
+			addQ(1, 3);
 			break;
 		case ID1_BUTTON3:
-			k.push(new kolejka(1, 4));
+			addQ(1, 4);
 			break;
 		case ID1_BUTTON4:
-			k.push(new kolejka(1, 5));
+			addQ(1, 5);
 			break;
 		case ID2_BUTTON1:
-			k.push(new kolejka(2, 1));
+			addQ(2, 1);
 			break;
 		case ID2_BUTTON2:
-			k.push(new kolejka(2, 3));
+			addQ(2, 3);
 			break;
 		case ID2_BUTTON3:
-			k.push(new kolejka(2, 4));
+			addQ(2, 4);
 			break;
 		case ID2_BUTTON4:
-			k.push(new kolejka(2, 5));
+			addQ(2, 5);
 			break;
 		case ID3_BUTTON1:
-			k.push(new kolejka(3, 1));
+			addQ(3, 1);
 			break;
 		case ID3_BUTTON2:
-			k.push(new kolejka(3, 2));
+			addQ(3, 2);
 			break;
 		case ID3_BUTTON3:
-			k.push(new kolejka(3, 4));
+			addQ(3, 4);
 			break;
 		case ID3_BUTTON4:
-			k.push(new kolejka(3, 5));
+			addQ(3, 5);
 			break;
 		case ID4_BUTTON1:
-			k.push(new kolejka(4, 1));
+			addQ(4, 1);
 			break;
 		case ID4_BUTTON2:
-			k.push(new kolejka(4, 2));
+			addQ(4, 2);
 			break;
 		case ID4_BUTTON3:
-			k.push(new kolejka(4, 3));
+			addQ(4, 3);
 			break;
 		case ID4_BUTTON4:
-			k.push(new kolejka(4, 5));
+			addQ(4, 5);
 			break;
 		case ID5_BUTTON1:
-			k.push(new kolejka(5, 1));
+			addQ(5, 1);
 			break;
 		case ID5_BUTTON2:
-			k.push(new kolejka(5, 2));
+			addQ(5, 2);
 			break;
 		case ID5_BUTTON3:
-			k.push(new kolejka(5, 3));
+			addQ(5, 3);
 			break;
 		case ID5_BUTTON4:
-			k.push(new kolejka(5, 4));
+			addQ(5, 4);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
