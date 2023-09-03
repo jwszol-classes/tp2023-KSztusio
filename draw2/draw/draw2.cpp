@@ -1,11 +1,12 @@
 // draw.cpp : Defines the entry point for the application.
 //
-
+#include <windows.h>
+#include <gdiplus.h>
 #include "stdafx.h"
 #include "draw2.h"
 #include <vector>
 #include <cstdio>
-
+using namespace Gdiplus;
 #define MAX_LOADSTRING 100
 #define TMR_1 1
 
@@ -33,17 +34,36 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	Buttons(HWND, UINT, WPARAM, LPARAM);
 
 
-void MyOnPaint(HDC hdc)
+
+
+RECT drawArea3 = { 0, 0, 2000, 2000 };
+
+
+//rysowanie 
+void OnPaint(HDC hdc)
 {
 	Graphics graphics(hdc);
-	Pen pen(Color(255, 0, 0, 255));
-	Pen pen2(Color(255, 25*col, 0, 255));
+	Pen pen(Color(255, col, 0, 0));
+	Pen pen2(Color(255, 255, 255, 255));
 
-	for (int i = 1; i < 100; i++)
-		graphics.DrawLine(&pen2, data[i - 1].X, data[i - 1].Y, data[i].X, data[i].Y);
 
-	graphics.DrawRectangle(&pen, 50 + value, 400, 10, 20);
+	// piêtra
+	graphics.DrawLine(&pen, 50, 150, 600, 150);   //5
+	graphics.DrawLine(&pen, 950, 300, 1500, 300); //4
+	graphics.DrawLine(&pen, 50, 450, 600, 450);   //3
+	graphics.DrawLine(&pen, 950, 600, 1500, 600); //2
+	graphics.DrawLine(&pen, 50, 750, 600, 750);   //1
+
+	// winda
+	graphics.DrawRectangle(&pen, 600, 0, 350, 750);
+
+
+	//graphics.DrawRectangle(&pen2, 610, 5  , 330, 145);
+	graphics.DrawRectangle(&pen, 610, 5, 330, 145);
+
 }
+
+
 
 void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
 {
@@ -52,7 +72,7 @@ void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
 	else
 		InvalidateRect(hWnd, drawArea, TRUE); //repaint drawArea
 	hdc = BeginPaint(hWnd, &ps);
-	MyOnPaint(hdc);
+	OnPaint(hdc);
 	EndPaint(hWnd, &ps);
 }
 
@@ -174,15 +194,158 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	// create button and store the handle                                                       
 	
-	hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
-		TEXT("Draw"),                  // the caption of the button
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  // the styles
-		300, 60,                                  // the left and top co-ordinates
-		80, 50,                              // width and height
-		hWnd,                                 // parent window handle
-		(HMENU)ID_BUTTON1,                   // the ID of your button
-		hInstance,                            // the instance of your application
-		NULL);                               // extra bits you dont really need
+
+	//przyciski pietro 5
+	hwndButton = CreateWindow(TEXT("button"),                      
+		TEXT("1"),                 
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  
+		50, 100,                                  
+		30, 30,                              
+		hWnd, (HMENU)ID5_BUTTON1, hInstance, NULL);
+		       
+	hwndButton = CreateWindow(TEXT("button"),                     
+		TEXT("2"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  
+		50, 70,                                  
+		30, 30,                              
+		hWnd, (HMENU)ID5_BUTTON2, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("3"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 40,
+		30, 30,
+		hWnd, (HMENU)ID5_BUTTON3, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("4"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 10,
+		30, 30,
+		hWnd, (HMENU)ID5_BUTTON4, hInstance, NULL);
+
+
+//przyciski pietro 4     
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("1"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 250,
+		30, 30,
+		hWnd, (HMENU)ID4_BUTTON1, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("2"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 220,
+		30, 30,
+		hWnd, (HMENU)ID4_BUTTON2, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("3"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 190,
+		30, 30,
+		hWnd, (HMENU)ID4_BUTTON3, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("5"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400,160 ,
+		30, 30,
+		hWnd, (HMENU)ID4_BUTTON4, hInstance, NULL);
+
+	// przyciski pietro 3
+		hwndButton = CreateWindow(TEXT("button"),
+		TEXT("1"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 400,
+		30, 30,
+		hWnd, (HMENU)ID3_BUTTON1, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("2"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 370,
+		30, 30,
+		hWnd, (HMENU)ID3_BUTTON2, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("4"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 340,
+		30, 30,
+		hWnd, (HMENU)ID3_BUTTON3, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("5"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 310,
+		30, 30,
+		hWnd, (HMENU)ID3_BUTTON4, hInstance, NULL);
+
+
+
+	// przyciski pietro 2
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("1"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 550,
+		30, 30,
+		hWnd, (HMENU)ID2_BUTTON1, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("3"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 520,
+		30, 30,
+		hWnd, (HMENU)ID2_BUTTON2, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("4"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 490,
+		30, 30,
+		hWnd, (HMENU)ID2_BUTTON3, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("5"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		1400, 460,
+		30, 30,
+		hWnd, (HMENU)ID2_BUTTON4, hInstance, NULL);
+
+
+	// przyciski pietro 1
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("2"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 700,
+		30, 30,
+		hWnd, (HMENU)ID1_BUTTON1, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("3"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 670,
+		30, 30,
+		hWnd, (HMENU)ID1_BUTTON2, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("4"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 640,
+		30, 30,
+		hWnd, (HMENU)ID1_BUTTON3, hInstance, NULL);
+
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("5"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 610,
+		30, 30,
+		hWnd, (HMENU)ID1_BUTTON4, hInstance, NULL);
+
+
+
 
 	hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
 		TEXT("DrawAll"),                  // the caption of the button
@@ -249,7 +412,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		case ID_BUTTON1 :
+		case ID5_BUTTON1 : //////////////???????????????????
 			col++;
 			if (col > 10)
 				col = 0;
