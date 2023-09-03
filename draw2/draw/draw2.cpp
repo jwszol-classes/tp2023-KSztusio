@@ -28,12 +28,17 @@ kolejka::kolejka(int x, int y) {
 	to = y;
 }
 std::queue <kolejka*> k;
-int levels[] = { 750, 600, 450, 300, 150 };
+int levels[] = { 605, 455, 305, 155, 5 };
 int height = 5;
+int from = 5;
+int now = -5;
+int to = 5;
+int wait = -100;
 // sent data
 int col = 0;
-int actualLevel = 5;
-RECT drawArea1 = { 0, 0, 1280, 720 };
+int actualLevel = 1;
+int do_it = 0;
+RECT drawArea1 = { 0, 0, 1280, 950 };
 RECT drawArea2 = { 50, 400, 650, 422 };
 
 // Forward declarations of functions included in this code module:
@@ -74,7 +79,6 @@ void OnPaint(HDC hdc)
 }
 
 
-
 void repaintWindow(HWND hWnd, HDC& hdc, PAINTSTRUCT& ps, RECT* drawArea)
 {
 	if (drawArea == NULL)
@@ -85,18 +89,7 @@ void repaintWindow(HWND hWnd, HDC& hdc, PAINTSTRUCT& ps, RECT* drawArea)
 	OnPaint(hdc);
 	EndPaint(hWnd, &ps);
 }
-void go(int from, int to) {
-	int up = 1;
-	if (from > to){
-		up = 1;
-	}
-	else if (from < to) {
-		up = -1;
-	}
-	for (int i = 0; i < abs(levels[from - 1] - levels[to - 1]); i++) {
-		height += up;
-	}
-}
+
 
 
 
@@ -115,7 +108,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	// TODO: Place code here.
-
+	height = levels[actualLevel - 1];
 	MSG msg;
 	HACCEL hAccelTable;
 
@@ -414,13 +407,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	if (!k.empty()) {
-		if (k.front()->from != actualLevel) {
-			go(actualLevel, k.front()->from);
-			actualLevel = k.front()->from;
+		switch (do_it){
+		case 0:
+			if (actualLevel != k.front()->from) {
+				do_it = 1;
+				from = actualLevel;
+				to = k.front()->from;
+			}
+			else {
+				do_it = 2;
+				from = k.front()->from;
+				to = k.front()->to;
+			}
+			break;
+		case 1:
+			if (height == levels[k.front()->from-1]) {
+				do_it = 2;
+				actualLevel = from;
+				from = k.front()->from;
+				to = k.front()->to;
+				wait = value;
+			}
+			break;
+		case 2:
+			if (height == levels[k.front()->to-1]) {
+				do_it = 0;
+				k.pop();
+				actualLevel = from;
+				from = actualLevel;
+				to = actualLevel;
+				wait = value;
+			}
+			break;
+		default:
+
+			break;
 		}
-		go(k.front()->from, k.front()->to);
-		actualLevel = k.front()->to;
-		k.pop();
+		if (do_it != 0 && now < value - 1 && wait < value - 50) {
+			height += abs(from - to) / (from - to);
+			now = value;
+		}
+		
 	}
 	switch (message)
 	{
