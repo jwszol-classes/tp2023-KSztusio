@@ -6,6 +6,7 @@
 #include "draw2.h"
 #include <vector>
 #include <cstdio>
+#include <queue>
 using namespace Gdiplus;
 #define MAX_LOADSTRING 100
 #define TMR_1 1
@@ -14,17 +15,26 @@ using namespace Gdiplus;
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-
 INT value;
-
 // buttons
 HWND hwndButton;
-
+struct kolejka {
+	kolejka(int x, int y);
+	int from = 0;
+	int to = 0;
+};
+kolejka::kolejka(int x, int y) {
+	from = x;
+	to = y;
+}
+std::queue <kolejka*> k;
+int levels[] = { 750, 600, 450, 300, 150 };
+int height = 5;
 // sent data
 int col = 0;
-std::vector<Point> data;
-RECT drawArea1 = { 0, 0, 150, 200 };
-RECT drawArea2 = { 50, 400, 650, 422};
+int actualLevel = 5;
+RECT drawArea1 = { 0, 0, 1280, 720 };
+RECT drawArea2 = { 50, 400, 650, 422 };
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -45,6 +55,7 @@ void OnPaint(HDC hdc)
 	Graphics graphics(hdc);
 	Pen pen(Color(255, col, 0, 0));
 	Pen pen2(Color(255, 255, 255, 255));
+	Pen pen3(Color(255, 255, 255, 255));
 
 
 	// piêtra
@@ -57,17 +68,16 @@ void OnPaint(HDC hdc)
 	// winda
 	graphics.DrawRectangle(&pen, 600, 0, 350, 750);
 
-
 	//graphics.DrawRectangle(&pen2, 610, 5  , 330, 145);
-	graphics.DrawRectangle(&pen, 610, 5, 330, 145);
+	graphics.DrawRectangle(&pen, 610, height, 330, 145);
 
 }
 
 
 
-void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
+void repaintWindow(HWND hWnd, HDC& hdc, PAINTSTRUCT& ps, RECT* drawArea)
 {
-	if (drawArea==NULL)
+	if (drawArea == NULL)
 		InvalidateRect(hWnd, NULL, TRUE); // repaint all
 	else
 		InvalidateRect(hWnd, drawArea, TRUE); //repaint drawArea
@@ -75,22 +85,26 @@ void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
 	OnPaint(hdc);
 	EndPaint(hWnd, &ps);
 }
-
-void inputData()
-{	
-	data.push_back(Point(0, 0));
-	for (int i = 1; i < 100; i++){
-		data.push_back(Point(2*i+1, 200 * rand()/RAND_MAX));
+void go(int from, int to) {
+	int up = 1;
+	if (from > to){
+		up = 1;
+	}
+	else if (from < to) {
+		up = -1;
+	}
+	for (int i = 0; i < abs(levels[from - 1] - levels[to - 1]); i++) {
+		height += up;
 	}
 }
 
 
+
+
 int OnCreate(HWND window)
 {
-	inputData();
 	return 0;
 }
-
 
 // main function (exe hInstance)
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -100,8 +114,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-
 	// TODO: Place code here.
+
 	MSG msg;
 	HACCEL hAccelTable;
 
@@ -190,8 +204,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	HWND hWnd;
-
-
 	hInst = hInstance; // Store instance handle (of exe) in our global variable
 
 	// main window
@@ -401,7 +413,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
-
+	if (!k.empty()) {
+		if (k.front()->from != actualLevel) {
+			go(actualLevel, k.front()->from);
+			actualLevel = k.front()->from;
+		}
+		go(k.front()->from, k.front()->to);
+		actualLevel = k.front()->to;
+		k.pop();
+	}
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -418,12 +438,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		case ID5_BUTTON1 : //////////////???????????????????
-			col++;
-			if (col > 10)
-				col = 0;
-			repaintWindow(hWnd, hdc, ps, &drawArea1);
-			break;
+		//case ID5_BUTTON1 : //////////////???????????????????
+		//	col++;
+		//	if (col > 10)
+		//		col = 0;
+		//	repaintWindow(hWnd, hdc, ps, &drawArea1);
+		//	break;
 		case ID_BUTTON2 :
 			repaintWindow(hWnd, hdc, ps, NULL);
 			break;
@@ -432,6 +452,66 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_RBUTTON2:
 			KillTimer(hWnd, TMR_1);
+			break;
+		case ID1_BUTTON1:
+			k.push(new kolejka(1, 2));
+			break;
+		case ID1_BUTTON2:
+			k.push(new kolejka(1, 3));
+			break;
+		case ID1_BUTTON3:
+			k.push(new kolejka(1, 4));
+			break;
+		case ID1_BUTTON4:
+			k.push(new kolejka(1, 5));
+			break;
+		case ID2_BUTTON1:
+			k.push(new kolejka(2, 1));
+			break;
+		case ID2_BUTTON2:
+			k.push(new kolejka(2, 3));
+			break;
+		case ID2_BUTTON3:
+			k.push(new kolejka(2, 4));
+			break;
+		case ID2_BUTTON4:
+			k.push(new kolejka(2, 5));
+			break;
+		case ID3_BUTTON1:
+			k.push(new kolejka(3, 1));
+			break;
+		case ID3_BUTTON2:
+			k.push(new kolejka(3, 2));
+			break;
+		case ID3_BUTTON3:
+			k.push(new kolejka(3, 4));
+			break;
+		case ID3_BUTTON4:
+			k.push(new kolejka(3, 5));
+			break;
+		case ID4_BUTTON1:
+			k.push(new kolejka(4, 1));
+			break;
+		case ID4_BUTTON2:
+			k.push(new kolejka(4, 2));
+			break;
+		case ID4_BUTTON3:
+			k.push(new kolejka(4, 3));
+			break;
+		case ID4_BUTTON4:
+			k.push(new kolejka(4, 5));
+			break;
+		case ID5_BUTTON1:
+			k.push(new kolejka(5, 1));
+			break;
+		case ID5_BUTTON2:
+			k.push(new kolejka(5, 2));
+			break;
+		case ID5_BUTTON3:
+			k.push(new kolejka(5, 3));
+			break;
+		case ID5_BUTTON4:
+			k.push(new kolejka(5, 4));
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -451,7 +531,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case TMR_1:
 			//force window to repaint
-			repaintWindow(hWnd, hdc, ps, &drawArea2);
+			repaintWindow(hWnd, hdc, ps, &drawArea1);
 			value++;
 			break;
 		}
