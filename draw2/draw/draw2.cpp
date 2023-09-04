@@ -24,6 +24,7 @@ struct kolejka {
 	int from = 1;
 	int to = 1;
 	int quantity = 0;
+	bool is_going = 0;
 };
 kolejka::kolejka(int x, int y, int z) {
 	from = x;
@@ -62,7 +63,7 @@ void addQ(int x, int y) {
 	bool f = 1;
 	int t = k.size();
 	for (int i = 0; i < k.size(); i++) {
-		if (x == k.front()->from && y == k.front()->to) {
+		if (x == k.front()->from && y == k.front()->to && !k.front()->is_going) {
 			k.push(new kolejka(k.front()->from, k.front()->to, ++k.front()->quantity));
 			f = 0;
 		}
@@ -441,6 +442,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				do_it = 2;
 				from = k.front()->from;
 				to = k.front()->to;
+				k.front()->is_going = 1;
 			}
 			break;
 		case 1:
@@ -450,6 +452,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				from = k.front()->from;
 				to = k.front()->to;
 				wait = value;
+				k.front()->is_going = 1;
 			}
 			break;
 		case 2:
