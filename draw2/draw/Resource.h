@@ -19,36 +19,36 @@
 #endif
 // Values for other objects (eg. buttons)
 #define ID5_BUTTON1				200
-#define ID5_BUTTON2				200
-#define ID5_BUTTON3				200
-#define ID5_BUTTON4				200
+#define ID5_BUTTON2				202
+#define ID5_BUTTON3				203
+#define ID5_BUTTON4				204
 
-#define ID4_BUTTON1			    200
-#define ID4_BUTTON2				200
-#define ID4_BUTTON3				200
-#define ID4_BUTTON4				200
+#define ID4_BUTTON1			    205
+#define ID4_BUTTON2				206
+#define ID4_BUTTON3				207
+#define ID4_BUTTON4				208
 
-#define ID3_BUTTON1			    200
-#define ID3_BUTTON2				200
-#define ID3_BUTTON3				200
-#define ID3_BUTTON4				200
-
-
-#define ID2_BUTTON1			    200
-#define ID2_BUTTON2				200
-#define ID2_BUTTON3				200
-#define ID2_BUTTON4				200
+#define ID3_BUTTON1			    209
+#define ID3_BUTTON2				210
+#define ID3_BUTTON3				211
+#define ID3_BUTTON4				212
 
 
-#define ID1_BUTTON1			    200
-#define ID1_BUTTON2				200
-#define ID1_BUTTON3				200
-#define ID1_BUTTON4				200
+#define ID2_BUTTON1			    213
+#define ID2_BUTTON2				214
+#define ID2_BUTTON3				215
+#define ID2_BUTTON4				216
 
 
-#define ID_BUTTON2				201
-#define ID_RBUTTON1				210
-#define ID_RBUTTON2				211
+#define ID1_BUTTON1			    217
+#define ID1_BUTTON2				218
+#define ID1_BUTTON3				219
+#define ID1_BUTTON4				220
+
+
+#define ID_BUTTON2				221
+#define ID_RBUTTON1				222
+#define ID_RBUTTON2				223
 
 // Next default values for new objects
 //
