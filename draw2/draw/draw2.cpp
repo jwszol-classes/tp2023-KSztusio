@@ -97,6 +97,14 @@ struct Passenger {
 std::vector<Passenger> passengers;
 bool elevatorMoving = false;
 
+void AddPassenger(HWND hWnd, int fromFloor, int toFloor) {
+	if (passengersInsideElevator < 8) {
+		// Dodaj pasa¿era na piêtro pocz¹tkowe i docelowe
+		passengers.push_back(Passenger(fromFloor, toFloor));
+		passengersInsideElevator++; // Zwiêksz liczbê pasa¿erów wewn¹trz windy
+		InvalidateRect(hWnd, &drawArea1, TRUE); // Odœwie¿ widok
+	}
+}
 
 //rysowanie 
 void OnPaint(HDC hdc)
@@ -545,29 +553,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_RBUTTON2:
 			KillTimer(hWnd, TMR_1);
 			break;
+
+
 		case ID1_BUTTON1:
 			elevatorTargetFloor = 2;
 			// Dodaj pasa¿era na piêtro 1, a docelowe piêtro ustaw na to, które zosta³o wciœniête
-			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			AddPassenger(hWnd, 1, elevatorTargetFloor);
 			addQ(1, 2);
 
 			InvalidateRect(hWnd, &drawArea1, TRUE); // Trigger a repaint of the affected area
 			break;
 		case ID1_BUTTON2:
 			elevatorTargetFloor = 3;
-			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			AddPassenger(hWnd, 1, elevatorTargetFloor);
 			addQ(1, 3);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID1_BUTTON3:
 			elevatorTargetFloor = 4;
-			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			AddPassenger(hWnd, 1, elevatorTargetFloor);
 			addQ(1, 4);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID1_BUTTON4:
 			elevatorTargetFloor = 5;
-			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			AddPassenger(hWnd, 1, elevatorTargetFloor);
 			addQ(1, 5);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
@@ -655,36 +665,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
-	case ID1_BUTTON1:
-	case ID1_BUTTON2:
-	case ID1_BUTTON3:
-	case ID1_BUTTON4:
-	case ID2_BUTTON1:
-	case ID2_BUTTON2:
-	case ID2_BUTTON3:
-	case ID2_BUTTON4:
-	case ID3_BUTTON1:
-	case ID3_BUTTON2:
-	case ID3_BUTTON3:
-	case ID3_BUTTON4:
-	case ID4_BUTTON1:
-	case ID4_BUTTON2:
-	case ID4_BUTTON3:
-	case ID4_BUTTON4:
-	case ID5_BUTTON1:
-	case ID5_BUTTON2:
-	case ID5_BUTTON3:
-	case ID5_BUTTON4:
-		if (passengersInsideElevator < 8) {
-			int fromFloor = (wmId - ID1_BUTTON1) / 4 + 1; // Oblicz piêtro pocz¹tkowe na podstawie ID przycisku
-			int toFloor = elevatorTargetFloor; // Zak³adamy, ¿e docelowe piêtro jest ustawione wczeœniej
 
-			// Dodaj pasa¿era na piêtro pocz¹tkowe i docelowe
-			passengers.push_back(Passenger(fromFloor, toFloor));
-			passengersInsideElevator++; // Zwiêksz liczbê pasa¿erów wewn¹trz windy
-			InvalidateRect(hWnd, &drawArea1, TRUE); // Odœwie¿ widok
-		}
-		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: Add any drawing code here (not depend on timer, buttons)
