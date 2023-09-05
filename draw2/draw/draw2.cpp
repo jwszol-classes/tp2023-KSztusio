@@ -148,6 +148,7 @@ void OnPaint(HDC hdc)
 		}
 	}
 
+
 }
 
 
@@ -582,82 +583,98 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID2_BUTTON1:
-
+			elevatorTargetFloor = 1;
+			AddPassenger(hWnd, 2, elevatorTargetFloor);
 			addQ(2, 1);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID2_BUTTON2:
-
+			elevatorTargetFloor = 3;
+			AddPassenger(hWnd, 2, elevatorTargetFloor);
 			addQ(2, 3);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID2_BUTTON3:
-
+			elevatorTargetFloor = 4;
+			AddPassenger(hWnd, 2, elevatorTargetFloor);
 			addQ(2, 4);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID2_BUTTON4:
-
+			elevatorTargetFloor = 5;
+			AddPassenger(hWnd, 2, elevatorTargetFloor);
 			addQ(2, 5);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID3_BUTTON1:
-
+			elevatorTargetFloor = 1;
+			AddPassenger(hWnd, 3, elevatorTargetFloor);
 			addQ(3, 1);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID3_BUTTON2:
-
+			elevatorTargetFloor = 2;
+			AddPassenger(hWnd, 3, elevatorTargetFloor);
 			addQ(3, 2);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID3_BUTTON3:
-
+			elevatorTargetFloor = 4;
+			AddPassenger(hWnd, 3, elevatorTargetFloor);
 			addQ(3, 4);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID3_BUTTON4:
-
+			elevatorTargetFloor = 5;
+			AddPassenger(hWnd, 3, elevatorTargetFloor);
 			addQ(3, 5);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID4_BUTTON1:
-
+			elevatorTargetFloor = 1;
+			AddPassenger(hWnd, 4, elevatorTargetFloor);
 			addQ(4, 1);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID4_BUTTON2:
-
+			elevatorTargetFloor = 2;
+			AddPassenger(hWnd, 4, elevatorTargetFloor);
 			addQ(4, 2);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID4_BUTTON3:
-
+			elevatorTargetFloor = 3;
+			AddPassenger(hWnd, 4, elevatorTargetFloor);
 			addQ(4, 3);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID4_BUTTON4:
-
+			elevatorTargetFloor = 5;
+			AddPassenger(hWnd, 4, elevatorTargetFloor);
 			addQ(4, 5);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID5_BUTTON1:
-
+			elevatorTargetFloor = 1;
+			AddPassenger(hWnd, 5, elevatorTargetFloor);
 			addQ(5, 1);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID5_BUTTON2:
-
+			elevatorTargetFloor = 2;
+			AddPassenger(hWnd, 5, elevatorTargetFloor);
 			addQ(5, 2);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID5_BUTTON3:
-
+			elevatorTargetFloor = 3;
+			AddPassenger(hWnd, 5, elevatorTargetFloor);
 			addQ(5, 3);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
 		case ID5_BUTTON4:
-
+			elevatorTargetFloor = 4;
+			AddPassenger(hWnd, 5, elevatorTargetFloor);
 			addQ(5, 4);
 			InvalidateRect(hWnd, &drawArea1, TRUE);
 			break;
