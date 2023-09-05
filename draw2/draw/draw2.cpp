@@ -6,6 +6,7 @@
 #include "draw2.h"
 #include <vector>
 #include <cstdio>
+#include <queue>
 using namespace Gdiplus;
 #define MAX_LOADSTRING 100
 #define TMR_1 1
@@ -14,17 +15,41 @@ using namespace Gdiplus;
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-
 INT value;
-
 // buttons
 HWND hwndButton;
 
+struct kolejka {
+	kolejka(int x, int y, int z = 1);
+	void add();
+	int from = 1;
+	int to = 1;
+	int quantity = 0;
+	bool is_going = 0;
+};
+kolejka::kolejka(int x, int y, int z) {
+	from = x;
+	to = y;
+	quantity = z;
+}
+void kolejka::add() {
+	quantity++;
+}
+std::queue <kolejka*> k;
+int levels[] = { 605, 455, 305, 155, 5 };
+int height = 10;
+int from = 1;
+int now = -5;
+int to = 1;
+int wait = -100;
 // sent data
 int col = 0;
-std::vector<Point> data;
-RECT drawArea1 = { 0, 0, 150, 200 };
-RECT drawArea2 = { 50, 400, 650, 422};
+int actualLevel = 1;
+int do_it = 0;
+RECT drawArea1 = { 0, 0, 1280, 950 };
+RECT drawArea2 = { 50, 400, 650, 422 };
+bool floorPressed[5] = { false, false, false, false, false }; // Assuming there are 5 floors
+
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -37,37 +62,91 @@ INT_PTR CALLBACK	Buttons(HWND, UINT, WPARAM, LPARAM);
 
 
 RECT drawArea3 = { 0, 0, 2000, 2000 };
+void addQ(int x, int y)
+{
+	bool f = 1;
+	int t = k.size();
+	for (int i = 0; i < k.size(); i++) {
+		if (x == k.front()->from && y == k.front()->to && !k.front()->is_going) {
+			k.push(new kolejka(k.front()->from, k.front()->to, ++k.front()->quantity));
+			f = 0;
+		}
+		else {
+			k.push(new kolejka(k.front()->from, k.front()->to, k.front()->quantity));
+		}
+		k.pop();
+
+	}
+	if (f) {
+		k.push(new kolejka(x, y));
+	}
+}
+int elevatorTargetFloor = 1;
+int passengersInsideElevator = 0;
+
+// Definicja struktury Passenger 
+struct Passenger {
+	int fromFloor;
+	int toFloor;
+	bool isInsideElevator;
+
+	Passenger(int from, int to) : fromFloor(from), toFloor(to), isInsideElevator(false) {}
+};
+
+// Definicja zmiennych globalnych
+std::vector<Passenger> passengers;
+bool elevatorMoving = false;
 
 
 //rysowanie 
 void OnPaint(HDC hdc)
 {
+
 	Graphics graphics(hdc);
 	Pen pen(Color(255, col, 0, 0));
+	Pen pen1(Color(255, 0, 0, 0), 3.0f);
 	Pen pen2(Color(255, 255, 255, 255));
+	Pen pen3(Color(255, 255, 255, 255));
+	Pen pen4(Color(255, 255, 0, 0));
 
 
 	// piêtra
 	graphics.DrawLine(&pen, 50, 150, 600, 150);   //5
-	graphics.DrawLine(&pen, 950, 300, 1500, 300); //4
+	graphics.DrawLine(&pen, 850, 300, 1500, 300); //4
 	graphics.DrawLine(&pen, 50, 450, 600, 450);   //3
-	graphics.DrawLine(&pen, 950, 600, 1500, 600); //2
+	graphics.DrawLine(&pen, 850, 600, 1500, 600); //2
 	graphics.DrawLine(&pen, 50, 750, 600, 750);   //1
 
 	// winda
-	graphics.DrawRectangle(&pen, 600, 0, 350, 750);
-
+	graphics.DrawRectangle(&pen1, 600, 5, 250, 750);
 
 	//graphics.DrawRectangle(&pen2, 610, 5  , 330, 145);
-	graphics.DrawRectangle(&pen, 610, 5, 330, 145);
+	graphics.DrawRectangle(&pen, 615, height + 25, 220, 120);
+
+
+	int passengerX = 630; // Pocz¹tkowa pozycja X pierwszego pasa¿era w windzie
+	int passengerY = height + 30; // Pocz¹tkowa pozycja Y pasa¿erów wewn¹trz windy
+
+	for (const Passenger& passenger : passengers) {
+		if (passenger.isInsideElevator) {
+			// Narysuj kwadrat reprezentuj¹cy pasa¿era w windzie
+			SolidBrush brush(Color(255, 0, 0, 255)); // Kolor niebieski
+			graphics.FillRectangle(&brush, passengerX, passengerY, 20, 20);
+			passengerX += 25; // Przesuniêcie na kolejn¹ pozycjê X
+			if (passengerX >= 800) {
+				passengerX = 630; // Wróæ na pocz¹tkow¹ pozycjê X
+				passengerY += 25; // Przesuniêcie na kolejn¹ pozycjê Y
+			}
+		}
+	}
 
 }
 
 
 
-void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
+void repaintWindow(HWND hWnd, HDC& hdc, PAINTSTRUCT& ps, RECT* drawArea)
 {
-	if (drawArea==NULL)
+	if (drawArea == NULL)
 		InvalidateRect(hWnd, NULL, TRUE); // repaint all
 	else
 		InvalidateRect(hWnd, drawArea, TRUE); //repaint drawArea
@@ -76,21 +155,14 @@ void repaintWindow(HWND hWnd, HDC &hdc, PAINTSTRUCT &ps, RECT *drawArea)
 	EndPaint(hWnd, &ps);
 }
 
-void inputData()
-{	
-	data.push_back(Point(0, 0));
-	for (int i = 1; i < 100; i++){
-		data.push_back(Point(2*i+1, 200 * rand()/RAND_MAX));
-	}
-}
+
+
 
 
 int OnCreate(HWND window)
 {
-	inputData();
 	return 0;
 }
-
 
 // main function (exe hInstance)
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -100,8 +172,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-
 	// TODO: Place code here.
+	height = levels[actualLevel - 1];
 	MSG msg;
 	HACCEL hAccelTable;
 
@@ -190,8 +262,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	HWND hWnd;
-
-
 	hInst = hInstance; // Store instance handle (of exe) in our global variable
 
 	// main window
@@ -199,21 +269,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
 	// create button and store the handle                                                       
-	
+
 
 	//przyciski pietro 5
-	hwndButton = CreateWindow(TEXT("button"),                      
-		TEXT("1"),                 
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  
-		50, 100,                                  
-		30, 30,                              
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("1"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 100,
+		30, 30,
 		hWnd, (HMENU)ID5_BUTTON1, hInstance, NULL);
-		       
-	hwndButton = CreateWindow(TEXT("button"),                     
+
+	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("2"),
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  
-		50, 70,                                  
-		30, 30,                              
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 70,
+		30, 30,
 		hWnd, (HMENU)ID5_BUTTON2, hInstance, NULL);
 
 	hwndButton = CreateWindow(TEXT("button"),
@@ -231,7 +301,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		hWnd, (HMENU)ID5_BUTTON4, hInstance, NULL);
 
 
-//przyciski pietro 4     
+	//przyciski pietro 4     
 	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("1"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -256,12 +326,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("5"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		1400,160 ,
+		1400, 160,
 		30, 30,
 		hWnd, (HMENU)ID4_BUTTON4, hInstance, NULL);
 
 	// przyciski pietro 3
-		hwndButton = CreateWindow(TEXT("button"),
+	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("1"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		50, 400,
@@ -356,7 +426,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
 		TEXT("DrawAll"),                  // the caption of the button
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  // the styles
-		300, 0,                                  // the left and top co-ordinates
+		1000, 35,                                  // the left and top co-ordinates
 		80, 50,                              // width and height
 		hWnd,                                 // parent window handle
 		(HMENU)ID_BUTTON2,                   // the ID of your button
@@ -367,11 +437,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	hwndButton = CreateWindow(TEXT("button"), TEXT("Timer ON"),
 		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		300, 155, 100, 30, hWnd, (HMENU)ID_RBUTTON1, GetModuleHandle(NULL), NULL);
+		1100, 30, 100, 30, hWnd, (HMENU)ID_RBUTTON1, GetModuleHandle(NULL), NULL);
 
 	hwndButton = CreateWindow(TEXT("button"), TEXT("Timer OFF"),
 		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		300, 200, 100, 30, hWnd, (HMENU)ID_RBUTTON2, GetModuleHandle(NULL), NULL);
+		1100, 60, 100, 30, hWnd, (HMENU)ID_RBUTTON2, GetModuleHandle(NULL), NULL);
 
 	OnCreate(hWnd);
 
@@ -401,7 +471,54 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	if (!k.empty()) {
+		switch (do_it) {
+		case 0:
+			if (actualLevel != k.front()->from) {
+				do_it = 1;
+				from = actualLevel;
+				to = k.front()->from;
+			}
+			else {
+				do_it = 2;
+				from = k.front()->from;
+				to = k.front()->to;
+				k.front()->is_going = 1;
+			}
+			break;
+		case 1:
+			if (height == levels[k.front()->from - 1]) {
+				do_it = 2;
+				actualLevel = from;
+				from = k.front()->from;
+				to = k.front()->to;
+				wait = value;
+				k.front()->is_going = 1;
+			}
+			break;
+		case 2:
+			if (height == levels[k.front()->to - 1]) {
+				do_it = 0;
+				k.pop();
+				actualLevel = to;
+				from = actualLevel;
+				wait = value;
+			}
+			break;
+		default:
 
+			break;
+		}
+		if (do_it != 0 && now < value - 1 && wait < value - 50) {
+			height += (abs(from - to) / (from - to)) * 5;
+			now = value;
+		}
+
+	}
+
+	else if (wait < value - 500 && actualLevel != 1) {
+		k.push(new kolejka(actualLevel, 1, 0));
+	}
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -418,13 +535,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		case ID5_BUTTON1 : //////////////???????????????????
-			col++;
-			if (col > 10)
-				col = 0;
-			repaintWindow(hWnd, hdc, ps, &drawArea1);
-			break;
-		case ID_BUTTON2 :
+
+		case ID_BUTTON2:
 			repaintWindow(hWnd, hdc, ps, NULL);
 			break;
 		case ID_RBUTTON1:
@@ -433,8 +545,144 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case ID_RBUTTON2:
 			KillTimer(hWnd, TMR_1);
 			break;
+		case ID1_BUTTON1:
+			elevatorTargetFloor = 2;
+			// Dodaj pasa¿era na piêtro 1, a docelowe piêtro ustaw na to, które zosta³o wciœniête
+			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			addQ(1, 2);
+
+			InvalidateRect(hWnd, &drawArea1, TRUE); // Trigger a repaint of the affected area
+			break;
+		case ID1_BUTTON2:
+			elevatorTargetFloor = 3;
+			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			addQ(1, 3);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID1_BUTTON3:
+			elevatorTargetFloor = 4;
+			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			addQ(1, 4);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID1_BUTTON4:
+			elevatorTargetFloor = 5;
+			passengers.push_back(Passenger(1, elevatorTargetFloor));
+			addQ(1, 5);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID2_BUTTON1:
+
+			addQ(2, 1);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID2_BUTTON2:
+
+			addQ(2, 3);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID2_BUTTON3:
+
+			addQ(2, 4);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID2_BUTTON4:
+
+			addQ(2, 5);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID3_BUTTON1:
+
+			addQ(3, 1);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID3_BUTTON2:
+
+			addQ(3, 2);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID3_BUTTON3:
+
+			addQ(3, 4);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID3_BUTTON4:
+
+			addQ(3, 5);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID4_BUTTON1:
+
+			addQ(4, 1);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID4_BUTTON2:
+
+			addQ(4, 2);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID4_BUTTON3:
+
+			addQ(4, 3);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID4_BUTTON4:
+
+			addQ(4, 5);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID5_BUTTON1:
+
+			addQ(5, 1);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID5_BUTTON2:
+
+			addQ(5, 2);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID5_BUTTON3:
+
+			addQ(5, 3);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
+		case ID5_BUTTON4:
+
+			addQ(5, 4);
+			InvalidateRect(hWnd, &drawArea1, TRUE);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+	case ID1_BUTTON1:
+	case ID1_BUTTON2:
+	case ID1_BUTTON3:
+	case ID1_BUTTON4:
+	case ID2_BUTTON1:
+	case ID2_BUTTON2:
+	case ID2_BUTTON3:
+	case ID2_BUTTON4:
+	case ID3_BUTTON1:
+	case ID3_BUTTON2:
+	case ID3_BUTTON3:
+	case ID3_BUTTON4:
+	case ID4_BUTTON1:
+	case ID4_BUTTON2:
+	case ID4_BUTTON3:
+	case ID4_BUTTON4:
+	case ID5_BUTTON1:
+	case ID5_BUTTON2:
+	case ID5_BUTTON3:
+	case ID5_BUTTON4:
+		if (passengersInsideElevator < 8) {
+			int fromFloor = (wmId - ID1_BUTTON1) / 4 + 1; // Oblicz piêtro pocz¹tkowe na podstawie ID przycisku
+			int toFloor = elevatorTargetFloor; // Zak³adamy, ¿e docelowe piêtro jest ustawione wczeœniej
+
+			// Dodaj pasa¿era na piêtro pocz¹tkowe i docelowe
+			passengers.push_back(Passenger(fromFloor, toFloor));
+			passengersInsideElevator++; // Zwiêksz liczbê pasa¿erów wewn¹trz windy
+			InvalidateRect(hWnd, &drawArea1, TRUE); // Odœwie¿ widok
 		}
 		break;
 	case WM_PAINT:
@@ -450,8 +698,52 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case TMR_1:
+			// Obs³uga ruchu windy i pasa¿erów
+			if (elevatorMoving) {
+				// Jeœli winda jest w ruchu, aktualizuj pozycjê pasa¿erów wewn¹trz windy
+				for (Passenger& passenger : passengers) {
+					if (passenger.isInsideElevator) {
+						// Zaktualizuj pozycjê pasa¿era wewn¹trz windy
+						if (passenger.fromFloor < passenger.toFloor) {
+							height -= 5; // Winda idzie w górê
+						}
+						else if (passenger.fromFloor > passenger.toFloor) {
+							height += 5; // Winda idzie w dó³
+						}
+						// SprawdŸ, czy pasa¿er dotar³ na docelowe piêtro
+						if (height == levels[passenger.toFloor - 1]) {
+							passenger.isInsideElevator = false; // Pasa¿er wysiada z windy
+							passengersInsideElevator--; // Zmniejsz liczbê pasa¿erów wewn¹trz windy
+						}
+					}
+				}
+			}
+			else {
+				// Jeœli winda zatrzyma³a siê, sprawdŸ, czy pasa¿erowie chc¹ wysi¹œæ na tym piêtrze
+				for (auto it = passengers.begin(); it != passengers.end();) {
+					Passenger& passenger = *it;
+					if (!passenger.isInsideElevator && height == levels[passenger.fromFloor - 1] &&
+						passengersInsideElevator < 8) {
+						// Pasa¿er chce wejœæ do windy i jest miejsce
+						passenger.isInsideElevator = true; // Wsiada do windy
+						passengersInsideElevator++; // Zwiêksz liczbê pasa¿erów wewn¹trz windy
+					}
+					if (passenger.isInsideElevator && height == levels[passenger.toFloor - 1] && !elevatorMoving) {
+						// Pasa¿er dotar³ na docelowe piêtro, wiêc zostaje usuniêty z windy
+						it = passengers.erase(it);
+						passengersInsideElevator--; // Zmniejsz liczbê pasa¿erów wewn¹trz windy
+					}
+					else {
+						++it;
+					}
+				}
+			}
+
+
+
+
 			//force window to repaint
-			repaintWindow(hWnd, hdc, ps, &drawArea2);
+			repaintWindow(hWnd, hdc, ps, &drawArea1);
 			value++;
 			break;
 		}
