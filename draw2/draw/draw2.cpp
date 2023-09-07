@@ -19,17 +19,18 @@ INT value;
 // buttons
 HWND hwndButton;
 struct kolejka {
-	kolejka(int x, int y, int z = 1);
+	kolejka(int x, int y, int z = 1, bool going = 0);
 	void add();
 	int from = 1;
 	int to = 1;
 	int quantity = 0;
 	bool is_going = 0;
 };
-kolejka::kolejka(int x, int y, int z) {
+kolejka::kolejka(int x, int y, int z, bool going) {
 	from = x;
 	to = y;
 	quantity = z;
+	is_going = going;
 }
 void kolejka::add() {
 	quantity++;
@@ -63,12 +64,17 @@ void addQ(int x, int y) {
 	bool f = 1;
 	int t = k.size();
 	for (int i = 0; i < k.size(); i++) {
-		if (x == k.front()->from && y == k.front()->to && !k.front()->is_going) {
+		if (x == k.front()->from && y == k.front()->to && !k.front()->is_going && k.front()->quantity < 8) {
 			k.push(new kolejka(k.front()->from, k.front()->to, ++k.front()->quantity));
 			f = 0;
 		}
 		else {
-			k.push(new kolejka(k.front()->from, k.front()->to, k.front()->quantity));
+			if (k.front()->is_going) {
+				k.push(new kolejka(k.front()->from, k.front()->to, k.front()->quantity, 1));
+			}
+			else {
+				k.push(new kolejka(k.front()->from, k.front()->to, k.front()->quantity));
+			}
 		}
 		k.pop();
 
@@ -77,7 +83,11 @@ void addQ(int x, int y) {
 		k.push(new kolejka(x, y));
 	}
 }
-
+void paintPeople(HDC hdc, int x, int y) {
+	Graphics graphics(hdc);
+	Pen pen(Color(255, 255, 0, 0));
+	graphics.DrawRectangle(&pen, x, y, 20, 50);
+}
 //rysowanie 
 void OnPaint(HDC hdc)
 {
@@ -96,11 +106,33 @@ void OnPaint(HDC hdc)
 
 	// winda
 	graphics.DrawRectangle(&pen, 600, 0, 350, 750);
-
+	std::queue <kolejka*> p = k;
 	//graphics.DrawRectangle(&pen2, 610, 5  , 330, 145);
 	graphics.DrawRectangle(&pen, 610, height, 330, 145);
-
+	int pointX[] = {620, 570, 980, 570, 980, 570};
+	int pointY[] = {height+95, 700, 550, 400, 250, 100};
+	while (!p.empty()) {
+		if (p.front()->is_going) {
+			for (int i = 0; i < p.front()->quantity; i++) {
+				paintPeople(hdc, pointX[0], pointY[0]);
+				pointX[0] += 30;
+			}
+		}
+		else {
+			for (int i = 0; i < p.front()->quantity; i++) {
+				paintPeople(hdc, pointX[p.front()->from], pointY[p.front()->from]);
+				if ((p.front()->from) % 2 == 0) {
+					pointX[p.front()->from] += 30;
+				}
+				else {
+					pointX[p.front()->from] -= 30;
+				}
+			}
+		}
+		p.pop();
+	}
 }
+
 
 
 void repaintWindow(HWND hWnd, HDC& hdc, PAINTSTRUCT& ps, RECT* drawArea)
