@@ -1,4 +1,4 @@
-// draw.cpp : Defines the entry point for the application.
+﻿// draw.cpp : Defines the entry point for the application.
 //
 #include <windows.h>
 #include <gdiplus.h>
@@ -57,9 +57,10 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	Buttons(HWND, UINT, WPARAM, LPARAM);
 
 
+int nowaSzerokosc = 30; // Nowa szerok w pikselach
+int nowaWysokosc = 100;  // Nowa wysokw pikselach
 
 
-RECT drawArea3 = { 0, 0, 2000, 2000 };
 void addQ(int x, int y) {
 	bool f = 1;
 	int t = k.size();
@@ -83,11 +84,7 @@ void addQ(int x, int y) {
 		k.push(new kolejka(x, y));
 	}
 }
-void paintPeople(HDC hdc, int x, int y) {
-	Graphics graphics(hdc);
-	Pen pen(Color(255, 255, 0, 0));
-	graphics.DrawRectangle(&pen, x, y, 20, 50);
-}
+
 //rysowanie 
 void OnPaint(HDC hdc)
 {
@@ -95,9 +92,12 @@ void OnPaint(HDC hdc)
 	Pen pen(Color(255, col, 0, 0));
 	Pen pen2(Color(255, 255, 255, 255));
 	Pen pen3(Color(255, 255, 255, 255));
+	Image image(L"human.jpg");
+
+	Image* miniatura = image.GetThumbnailImage(nowaSzerokosc, nowaWysokosc);
 
 
-	// pi�tra
+	// piętra
 	graphics.DrawLine(&pen, 50, 150, 600, 150);   //5
 	graphics.DrawLine(&pen, 950, 300, 1500, 300); //4
 	graphics.DrawLine(&pen, 50, 450, 600, 450);   //3
@@ -111,37 +111,41 @@ void OnPaint(HDC hdc)
 	graphics.DrawRectangle(&pen, 610, height, 330, 145);
 	int pointXp[] = { 620, 570, 980, 570, 980, 570 };
 	int pointX[] = {620, 570, 980, 570, 980, 570};
-	int pointY[] = {height+95, 700, 550, 400, 250, 100};
-	while (!p.empty()) {
-		if (p.front()->is_going) {
-			for (int i = 0; i < p.front()->quantity; i++) {
-				paintPeople(hdc, pointX[0], pointY[0]);
-				pointX[0] += 30;
-			}
-		}
-		else {
-			for (int i = 0; i < p.front()->quantity; i++) {
-				paintPeople(hdc, pointX[p.front()->from], pointY[p.front()->from]);
-				if ((p.front()->from) % 2 == 0) {
-					pointX[p.front()->from] += 30;
-					if (pointX[p.front()->from] == 1220) {
-						pointX[p.front()->from] = pointXp[p.front()->from];
-						pointY[p.front()->from] -= 60;
+	int pointY[] = {height+45, 650, 500, 350, 200, 50};
+		while (!p.empty()) {
+			if (p.front()->is_going) {
+				for (int i = 0; i < p.front()->quantity; i++) {
+					graphics.DrawImage(miniatura, pointX[0], pointY[0]);
+					pointX[0] += 30;
 
-					}
-				}
-				else {
-					pointX[p.front()->from] -= 30;
-					if (pointX[p.front()->from] == 330) {
-						pointX[p.front()->from] = pointXp[p.front()->from];
-						pointY[p.front()->from] -= 60;
-
-					}
 				}
 			}
+			else {
+				for (int i = 0; i < p.front()->quantity; i++) {
+					graphics.DrawImage(miniatura, pointX[p.front()->from], pointY[p.front()->from]);
+					if ((p.front()->from) % 2 == 0) {
+						pointX[p.front()->from] += 30;
+						if (pointX[p.front()->from] == 1220) {
+							pointX[p.front()->from] = pointXp[p.front()->from];
+							pointY[p.front()->from] -= 60;
+
+						}
+					}
+					else {
+						pointX[p.front()->from] -= 30;
+						if (pointX[p.front()->from] == 330) {
+							pointX[p.front()->from] = pointXp[p.front()->from];
+							pointY[p.front()->from] -= 60;
+
+						}
+					}
+				}
+			}
+			p.pop();
 		}
-		p.pop();
-	}
+		delete miniatura;
+
+		
 }
 
 
