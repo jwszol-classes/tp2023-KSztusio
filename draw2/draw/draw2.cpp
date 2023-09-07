@@ -46,7 +46,7 @@ int wait = -100;
 int col = 0;
 int actualLevel = 1;
 int do_it = 0;
-RECT drawArea1 = { 0, 0, 1280, 950 };
+RECT drawArea1 = { 100, 0, 1280, 950 };
 RECT drawArea2 = { 50, 400, 650, 422 };
 
 // Forward declarations of functions included in this code module:
@@ -109,6 +109,7 @@ void OnPaint(HDC hdc)
 	std::queue <kolejka*> p = k;
 	//graphics.DrawRectangle(&pen2, 610, 5  , 330, 145);
 	graphics.DrawRectangle(&pen, 610, height, 330, 145);
+	int pointXp[] = { 620, 570, 980, 570, 980, 570 };
 	int pointX[] = {620, 570, 980, 570, 980, 570};
 	int pointY[] = {height+95, 700, 550, 400, 250, 100};
 	while (!p.empty()) {
@@ -123,9 +124,19 @@ void OnPaint(HDC hdc)
 				paintPeople(hdc, pointX[p.front()->from], pointY[p.front()->from]);
 				if ((p.front()->from) % 2 == 0) {
 					pointX[p.front()->from] += 30;
+					if (pointX[p.front()->from] == 1220) {
+						pointX[p.front()->from] = pointXp[p.front()->from];
+						pointY[p.front()->from] -= 60;
+
+					}
 				}
 				else {
 					pointX[p.front()->from] -= 30;
+					if (pointX[p.front()->from] == 330) {
+						pointX[p.front()->from] = pointXp[p.front()->from];
+						pointY[p.front()->from] -= 60;
+
+					}
 				}
 			}
 		}
@@ -164,6 +175,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	// TODO: Place code here.
+
 	height = levels[actualLevel - 1];
 	MSG msg;
 	HACCEL hAccelTable;
@@ -417,7 +429,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
 		TEXT("DrawAll"),                  // the caption of the button
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  // the styles
-		300, 0,                                  // the left and top co-ordinates
+		100, 0,                                  // the left and top co-ordinates
 		80, 50,                              // width and height
 		hWnd,                                 // parent window handle
 		(HMENU)ID_BUTTON2,                   // the ID of your button
@@ -428,11 +440,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	hwndButton = CreateWindow(TEXT("button"), TEXT("Timer ON"),
 		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		300, 155, 100, 30, hWnd, (HMENU)ID_RBUTTON1, GetModuleHandle(NULL), NULL);
+		100, 155, 100, 30, hWnd, (HMENU)ID_RBUTTON1, GetModuleHandle(NULL), NULL);
 
 	hwndButton = CreateWindow(TEXT("button"), TEXT("Timer OFF"),
 		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		300, 200, 100, 30, hWnd, (HMENU)ID_RBUTTON2, GetModuleHandle(NULL), NULL);
+		100, 200, 100, 30, hWnd, (HMENU)ID_RBUTTON2, GetModuleHandle(NULL), NULL);
 
 	OnCreate(hWnd);
 
