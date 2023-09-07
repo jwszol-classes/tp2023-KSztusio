@@ -106,9 +106,14 @@ void AddPassenger(HWND hWnd, int fromFloor, int toFloor) {
 	}
 }
 
+
 //rysowanie 
 void OnPaint(HDC hdc)
 {
+	 // Zmieñ na odpowiedni¹ œcie¿kê do swojego obrazu
+
+	 // 'hdc' to uchwyt do kontekstu urz¹dzenia z funkcji OnPaint
+	
 
 	Graphics graphics(hdc);
 	Pen pen(Color(255, col, 0, 0));
@@ -147,7 +152,21 @@ void OnPaint(HDC hdc)
 			}
 		}
 	}
+	
+	
+	Image image(L"human.jpg");
 
+	int nowaSzerokosc = 60; // Nowa szerokoœæ w pikselach
+	int nowaWysokosc = 100;  // Nowa wysokoœæ w pikselach
+	Image* miniatura = image.GetThumbnailImage(nowaSzerokosc, nowaWysokosc);
+
+	if (miniatura != nullptr) {
+		graphics.DrawImage(miniatura, 100, 400);
+		delete miniatura; // Zwolnij pamiêæ po miniaturze, gdy nie jest ju¿ potrzebna
+	}
+	else {
+		
+	}
 
 }
 
@@ -696,6 +715,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case TMR_1:
+
 			// Obs³uga ruchu windy i pasa¿erów
 			if (elevatorMoving) {
 				// Jeœli winda jest w ruchu, aktualizuj pozycjê pasa¿erów wewn¹trz windy
@@ -716,6 +736,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 				}
 			}
+		
 			else {
 				// Jeœli winda zatrzyma³a siê, sprawdŸ, czy pasa¿erowie chc¹ wysi¹œæ na tym piêtrze
 				for (auto it = passengers.begin(); it != passengers.end();) {
