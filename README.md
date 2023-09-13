@@ -15,5 +15,5 @@ The project was created using C++ and GDI+.
 
 
 ## Authors
-Stanisław Lesner: movement of the elevator and passengers
-Patrycja Pieńkowska: graphic design, buttons and passenger display
+- Stanisław Lesner: movement of the elevator and passengers
+- Patrycja Pieńkowska: graphic design, buttons and passenger display
