@@ -37,7 +37,7 @@ void kolejka::add() {
 }
 std::queue <kolejka*> k;
 int levels[] = { 605, 455, 305, 155, 5 };
-int height = 5;
+int height = 10;
 int from = 1;
 int now = -5;
 int to = 1;
@@ -57,8 +57,8 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	Buttons(HWND, UINT, WPARAM, LPARAM);
 
 
-int nowaSzerokosc = 30; // Nowa szerok w pikselach
-int nowaWysokosc = 100;  // Nowa wysokw pikselach
+int nowaSzerokosc = 30;
+int nowaWysokosc = 100;
 
 
 void addQ(int x, int y) {
@@ -89,63 +89,69 @@ void addQ(int x, int y) {
 void OnPaint(HDC hdc)
 {
 	Graphics graphics(hdc);
-	Pen pen(Color(255, col, 0, 0));
-	Pen pen2(Color(255, 255, 255, 255));
-	Pen pen3(Color(255, 255, 255, 255));
+	Pen pen(Color(255, 0, 0, 0));
+	Pen pen1(Color(255, 0, 0, 0), 3.0f);
+	Pen pen2(Color(255, 255, 0, 255), 2.0f);
+	Pen pen3(Color(255, 0, 191, 255), 2.0f);
+	Pen pen4(Color(255, 148, 0, 211), 2.0f);
+	Pen pen5(Color(255, 220, 20, 60), 2.0f);
+	Pen pen6(Color(255, 0, 0, 205), 2.0f);
 	Image image(L"human.jpg");
 
 	Image* miniatura = image.GetThumbnailImage(nowaSzerokosc, nowaWysokosc);
 
 
 	// piętra
-	graphics.DrawLine(&pen, 50, 150, 600, 150);   //5
-	graphics.DrawLine(&pen, 950, 300, 1500, 300); //4
-	graphics.DrawLine(&pen, 50, 450, 600, 450);   //3
-	graphics.DrawLine(&pen, 950, 600, 1500, 600); //2
-	graphics.DrawLine(&pen, 50, 750, 600, 750);   //1
+	graphics.DrawLine(&pen6, 50, 150, 600, 150);   //5
+	graphics.DrawLine(&pen5, 880, 300, 1500, 300); //4
+	graphics.DrawLine(&pen4, 50, 450, 600, 450);   //3
+	graphics.DrawLine(&pen3, 880, 600, 1500, 600); //2
+	graphics.DrawLine(&pen2, 50, 750, 600, 750);   //1
 
 	// winda
-	graphics.DrawRectangle(&pen, 600, 0, 350, 750);
+	graphics.DrawRectangle(&pen, 600, 5, 280, 750);
 	std::queue <kolejka*> p = k;
-	//graphics.DrawRectangle(&pen2, 610, 5  , 330, 145);
-	graphics.DrawRectangle(&pen, 610, height, 330, 145);
+
+	graphics.DrawRectangle(&pen1, 610, height + 25, 260, 120);
+
+
 	int pointXp[] = { 620, 570, 980, 570, 980, 570 };
-	int pointX[] = {620, 570, 980, 570, 980, 570};
-	int pointY[] = {height+45, 650, 500, 350, 200, 50};
-		while (!p.empty()) {
-			if (p.front()->is_going) {
-				for (int i = 0; i < p.front()->quantity; i++) {
-					graphics.DrawImage(miniatura, pointX[0], pointY[0]);
-					pointX[0] += 30;
+	int pointX[] = { 620, 570, 980, 570, 980, 570 };
+	int pointY[] = { height + 45, 650, 500, 350, 200, 50 };
+	while (!p.empty()) {
+		if (p.front()->is_going) {
+			for (int i = 0; i < p.front()->quantity; i++) {
+				graphics.DrawImage(miniatura, pointX[0], pointY[0]);
+				pointX[0] += 30;
 
-				}
 			}
-			else {
-				for (int i = 0; i < p.front()->quantity; i++) {
-					graphics.DrawImage(miniatura, pointX[p.front()->from], pointY[p.front()->from]);
-					if ((p.front()->from) % 2 == 0) {
-						pointX[p.front()->from] += 30;
-						if (pointX[p.front()->from] == 1220) {
-							pointX[p.front()->from] = pointXp[p.front()->from];
-							pointY[p.front()->from] -= 60;
-
-						}
-					}
-					else {
-						pointX[p.front()->from] -= 30;
-						if (pointX[p.front()->from] == 330) {
-							pointX[p.front()->from] = pointXp[p.front()->from];
-							pointY[p.front()->from] -= 60;
-
-						}
-					}
-				}
-			}
-			p.pop();
 		}
-		delete miniatura;
+		else {
+			for (int i = 0; i < p.front()->quantity; i++) {
+				graphics.DrawImage(miniatura, pointX[p.front()->from], pointY[p.front()->from]);
+				if ((p.front()->from) % 2 == 0) {
+					pointX[p.front()->from] += 30;
+					if (pointX[p.front()->from] == 1220) {
+						pointX[p.front()->from] = pointXp[p.front()->from];
+						pointY[p.front()->from] -= 60;
 
-		
+					}
+				}
+				else {
+					pointX[p.front()->from] -= 30;
+					if (pointX[p.front()->from] == 330) {
+						pointX[p.front()->from] = pointXp[p.front()->from];
+						pointY[p.front()->from] -= 60;
+
+					}
+				}
+			}
+		}
+		p.pop();
+	}
+	delete miniatura;
+
+
 }
 
 
@@ -276,21 +282,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
 	// create button and store the handle                                                       
-	
+
 
 	//przyciski pietro 5
-	hwndButton = CreateWindow(TEXT("button"),                      
-		TEXT("1"),                 
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  
-		50, 100,                                  
-		30, 30,                              
+	hwndButton = CreateWindow(TEXT("button"),
+		TEXT("1"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 100,
+		30, 30,
 		hWnd, (HMENU)ID5_BUTTON1, hInstance, NULL);
-		       
-	hwndButton = CreateWindow(TEXT("button"),                     
+
+	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("2"),
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  
-		50, 70,                                  
-		30, 30,                              
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		50, 70,
+		30, 30,
 		hWnd, (HMENU)ID5_BUTTON2, hInstance, NULL);
 
 	hwndButton = CreateWindow(TEXT("button"),
@@ -308,7 +314,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		hWnd, (HMENU)ID5_BUTTON4, hInstance, NULL);
 
 
-//przyciski pietro 4     
+	//przyciski pietro 4     
 	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("1"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -333,12 +339,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("5"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		1400,160 ,
+		1400, 160,
 		30, 30,
 		hWnd, (HMENU)ID4_BUTTON4, hInstance, NULL);
 
 	// przyciski pietro 3
-		hwndButton = CreateWindow(TEXT("button"),
+	hwndButton = CreateWindow(TEXT("button"),
 		TEXT("1"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		50, 400,
@@ -433,7 +439,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
 		TEXT("DrawAll"),                  // the caption of the button
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  // the styles
-		100, 0,                                  // the left and top co-ordinates
+		1000, 35,                                  // the left and top co-ordinates
 		80, 50,                              // width and height
 		hWnd,                                 // parent window handle
 		(HMENU)ID_BUTTON2,                   // the ID of your button
@@ -444,11 +450,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	hwndButton = CreateWindow(TEXT("button"), TEXT("Timer ON"),
 		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		100, 155, 100, 30, hWnd, (HMENU)ID_RBUTTON1, GetModuleHandle(NULL), NULL);
+		1100, 30, 100, 30, hWnd, (HMENU)ID_RBUTTON1, GetModuleHandle(NULL), NULL);
 
 	hwndButton = CreateWindow(TEXT("button"), TEXT("Timer OFF"),
 		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		100, 200, 100, 30, hWnd, (HMENU)ID_RBUTTON2, GetModuleHandle(NULL), NULL);
+		1100, 60, 100, 30, hWnd, (HMENU)ID_RBUTTON2, GetModuleHandle(NULL), NULL);
 
 	OnCreate(hWnd);
 
@@ -479,7 +485,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	if (!k.empty()) {
-		switch (do_it){
+		switch (do_it) {
 		case 0:
 			if (actualLevel != k.front()->from) {
 				do_it = 1;
@@ -494,7 +500,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case 1:
-			if (height == levels[k.front()->from-1]) {
+			if (height == levels[k.front()->from - 1]) {
 				do_it = 2;
 				actualLevel = from;
 				from = k.front()->from;
@@ -504,7 +510,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case 2:
-			if (height == levels[k.front()->to-1]) {
+			if (height == levels[k.front()->to - 1]) {
 				do_it = 0;
 				k.pop();
 				actualLevel = to;
@@ -520,9 +526,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			height += (abs(from - to) / (from - to)) * 5;
 			now = value;
 		}
-		
+
 	}
-	
+
 	else if (wait < value - 500 && actualLevel != 1) {
 		k.push(new kolejka(actualLevel, 1, 0));
 	}
@@ -542,13 +548,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		//case ID5_BUTTON1 : //////////////???????????????????
-		//	col++;
-		//	if (col > 10)
-		//		col = 0;
-		//	repaintWindow(hWnd, hdc, ps, &drawArea1);
-		//	break;
-		case ID_BUTTON2 :
+			//case ID5_BUTTON1 : //////////////???????????????????
+			//	col++;
+			//	if (col > 10)
+			//		col = 0;
+			//	repaintWindow(hWnd, hdc, ps, &drawArea1);
+			//	break;
+		case ID_BUTTON2:
 			repaintWindow(hWnd, hdc, ps, NULL);
 			break;
 		case ID_RBUTTON1:
