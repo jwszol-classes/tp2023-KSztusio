@@ -13,8 +13,6 @@ The project was created using C++ and GDI+.
 - By pressing the buttons on individual floors, the elevator is summoned.
 - The elevator with its passengers heads to the target floor
 
-## Project Status
-The project is complete. No further updates.
 
 ## Authors
 Stanisław Lesner: movement of the elevator and passengers
